@@ -1,0 +1,18 @@
+services:
+  aico-task-db:
+    image: 'postgres:18'
+
+    ports:
+      - 5432:5432
+
+    environment:
+      POSTGRES_USER: aico
+      POSTGRES_PASSWORD: aicopassword
+      POSTGRES_DB: aicodb
+
+    volumes:
+      - aico_task_db_data:/var/lib/postgresql/data
+
+volumes:
+  aico_task_db_data:
+
