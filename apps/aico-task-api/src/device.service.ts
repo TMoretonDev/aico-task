@@ -1,4 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import {
+  CreateDeviceInterface,
+  UpdateDeviceInterface,
+} from '@aico-task/shared-types';
 
 @Injectable()
 export class DeviceService {
@@ -10,15 +14,15 @@ export class DeviceService {
     return `Device with ID ${id}`;
   }
 
-  createDevice(): string {
-    return 'Device created!';
+  createDevice(createDeviceData: CreateDeviceInterface): string {
+    return `Device created using data: ${JSON.stringify(createDeviceData)}`;
   }
 
-  updateDevice(): string {
-    return 'Device updated!';
+  updateDevice(updateDeviceData: UpdateDeviceInterface): string {
+    return `Device updated using data: ${JSON.stringify(updateDeviceData)}`;
   }
 
-  deleteDevice(): string {
-    return 'Device deleted!';
+  deleteDevice(id: string): string {
+    return `Device ID: ${id} deleted!`;
   }
 }

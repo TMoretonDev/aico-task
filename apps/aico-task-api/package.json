@@ -29,7 +29,8 @@
     "drizzle-orm": "1.0.0-beta.22",
     "pg": "^8.20.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "@aico-task/shared-types": "workspace:*"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
