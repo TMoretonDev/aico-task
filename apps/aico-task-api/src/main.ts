@@ -1,10 +1,11 @@
 import { NestFactory } from '@nestjs/core';
-import { DeviceModule } from './device.module';
-import { ValidationPipe } from '@nestjs/common/pipes/validation.pipe';
+import { ZodValidationPipe } from 'nestjs-zod';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(DeviceModule);
-  app.useGlobalPipes(new ValidationPipe());
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ZodValidationPipe());
+  app.enableCors();
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();

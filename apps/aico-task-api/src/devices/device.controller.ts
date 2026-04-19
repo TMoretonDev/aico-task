@@ -6,6 +6,7 @@ import {
   Post,
   Body,
   Param,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { DeviceService } from './device.service';
 import { CreateDeviceDto } from './dtos/create-device.dto';
@@ -17,18 +18,20 @@ export class DeviceController {
   constructor(private readonly deviceService: DeviceService) {}
 
   @Get(':id')
-  getDevice(@Param('id') id: string): string {
+  getDevice(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<DeviceResponseInterface> {
     return this.deviceService.getDevice(id);
   }
 
   @Get()
-  getAllDevices(): string {
+  getAllDevices(): Promise<DeviceResponseInterface[]> {
     return this.deviceService.getAllDevices();
   }
 
   @Patch(':id')
   updateDevice(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateDeviceDto: UpdateDeviceDto,
   ): Promise<DeviceResponseInterface> {
     return this.deviceService.updateDevice(id, updateDeviceDto);
@@ -42,7 +45,7 @@ export class DeviceController {
   }
 
   @Delete(':id')
-  deleteDevice(@Param('id') id: string): string {
+  deleteDevice(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.deviceService.deleteDevice(id);
   }
 }

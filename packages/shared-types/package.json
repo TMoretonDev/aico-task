@@ -1,3 +1,6 @@
 {
-  "name": "@aico-task/shared-types"
+  "name": "@aico-task/shared-types",
+  "dependencies": {
+    "zod": "^3.23.0"
+  }
 }

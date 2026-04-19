@@ -3,8 +3,12 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "src",
-    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
+    "emitDeclarationOnly": false,
+    "declaration": false,
+    "declarationMap": false,
+    "composite": false
   },
-  "references": [{ "path": "../../packages/shared-types" }],
+  // "references": [{ "path": "../../packages/shared-types" }],
   "include": ["src/**/*"]
 }

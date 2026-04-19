@@ -24,7 +24,6 @@
     "declaration": true,
     "sourceMap": true,
     "incremental": true,
-    "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "strictBindCallApply": false,
     "customConditions": ["@org/source"]

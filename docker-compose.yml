@@ -3,7 +3,7 @@ services:
     image: 'postgres:18'
 
     ports:
-      - 5432:5432
+      - 5433:5432
 
     environment:
       POSTGRES_USER: aico
@@ -13,6 +13,11 @@ services:
     volumes:
       - aico_task_db_data:/var/lib/postgresql/data
 
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U aico -d aicodb']
+      interval: 2s
+      timeout: 2s
+      retries: 20
+
 volumes:
   aico_task_db_data:
-
