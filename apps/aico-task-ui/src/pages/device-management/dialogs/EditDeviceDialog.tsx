@@ -1,8 +1,17 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useForm } from '@tanstack/react-form';
-import { createDeviceSchema } from '@aico-task/shared-types';
-import { useCreateOneDevice, useGetAllDeviceTypes } from '@/api/hooks';
+import { Pencil } from 'lucide-react';
+import axios from 'axios';
+import {
+  updateDeviceSchema,
+  type DeviceResponseInterface,
+  type UpdateDeviceInterface,
+} from '@aico-task/shared-types';
+import {
+  useGetAllDeviceTypes,
+  useUpdateOneDevice,
+} from '@/pages/device-management/hooks';
 import {
   Button,
   Dialog,
@@ -25,61 +34,77 @@ import {
   Spinner,
 } from '@/components/ui';
 
-export function AddDeviceDialog() {
+interface Props {
+  device: DeviceResponseInterface;
+}
+
+export function EditDeviceDialog({ device }: Props) {
   const [open, setOpen] = useState(false);
-  const createDevice = useCreateOneDevice();
+  const { mutate: updateDevice, isPending: isUpdating } = useUpdateOneDevice(
+    device.id,
+  );
   const deviceTypesQuery = useGetAllDeviceTypes();
   const deviceTypes = deviceTypesQuery.data ?? [];
 
-  const addDeviceForm = useForm({
-    defaultValues: {
-      name: '',
-      manufacturer: '',
-      serialNumber: '',
-      typeId: 0,
-      latitude: 0,
-      longitude: 0,
-      online: false,
-    },
+  const defaultValues: UpdateDeviceInterface = {
+    name: device.name,
+    manufacturer: device.manufacturer,
+    serialNumber: device.serialNumber,
+    typeId: device.typeId,
+    latitude: device.latitude,
+    longitude: device.longitude,
+    online: device.online,
+  };
+
+  const editDeviceForm = useForm({
+    defaultValues,
     validators: {
-      onChange: createDeviceSchema,
+      onChange: updateDeviceSchema,
     },
     onSubmit: async ({ value }) => {
       try {
-        await createDevice.mutateAsync(value);
-        toast.success('Device created');
+        await updateDevice(value);
+        toast.success('Device updated');
         setOpen(false);
-        addDeviceForm.reset();
       } catch (err) {
-        toast.error(
-          err instanceof Error ? err.message : 'Failed to create device',
-        );
+        const message = axios.isAxiosError(err)
+          ? (err.response?.data?.message ?? err.message)
+          : err instanceof Error
+            ? err.message
+            : 'Failed to update device';
+        toast.error(message);
       }
     },
   });
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button />}>Add device</DialogTrigger>
+      <DialogTrigger
+        render={
+          <Button variant="ghost" size="icon-sm" aria-label="Edit device" />
+        }
+      >
+        <Pencil />
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add device</DialogTitle>
+          <DialogTitle>Edit device</DialogTitle>
           <DialogDescription>
-            Create a new device. All fields are required.
+            Update the fields below and save to apply changes.
           </DialogDescription>
         </DialogHeader>
 
         <form
-          id="add-device-form"
+          id={`edit-device-form-${device.id}`}
           onSubmit={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            addDeviceForm.handleSubmit();
+            editDeviceForm.handleSubmit();
           }}
           className="space-y-4"
         >
           <FieldGroup>
-            <addDeviceForm.Field
+            <editDeviceForm.Field
               name="name"
               children={(field) => {
                 const isInvalid =
@@ -94,7 +119,6 @@ export function AddDeviceDialog() {
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       aria-invalid={isInvalid}
-                      placeholder="Kitchen alarm"
                       autoComplete="off"
                     />
                     {isInvalid && (
@@ -105,7 +129,7 @@ export function AddDeviceDialog() {
               }}
             />
 
-            <addDeviceForm.Field
+            <editDeviceForm.Field
               name="manufacturer"
               children={(field) => {
                 const isInvalid =
@@ -120,7 +144,6 @@ export function AddDeviceDialog() {
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       aria-invalid={isInvalid}
-                      placeholder="Aico"
                     />
                     {isInvalid && (
                       <FieldError errors={field.state.meta.errors} />
@@ -130,7 +153,7 @@ export function AddDeviceDialog() {
               }}
             />
 
-            <addDeviceForm.Field
+            <editDeviceForm.Field
               name="serialNumber"
               children={(field) => {
                 const isInvalid =
@@ -147,7 +170,6 @@ export function AddDeviceDialog() {
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       aria-invalid={isInvalid}
-                      placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
                     />
                     {isInvalid && (
                       <FieldError errors={field.state.meta.errors} />
@@ -157,7 +179,7 @@ export function AddDeviceDialog() {
               }}
             />
 
-            <addDeviceForm.Field
+            <editDeviceForm.Field
               name="typeId"
               children={(field) => {
                 const isInvalid =
@@ -179,7 +201,11 @@ export function AddDeviceDialog() {
                               ? 'Loading…'
                               : 'Select a device type'
                           }
-                        />
+                        >
+                          {(value: number) =>
+                            deviceTypes.find((t) => t.id === value)?.name ?? ''
+                          }
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {deviceTypes.map((t) => (
@@ -197,8 +223,30 @@ export function AddDeviceDialog() {
               }}
             />
 
+            <editDeviceForm.Field
+              name="online"
+              children={(field) => (
+                <Field>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id={field.name}
+                      name={field.name}
+                      checked={field.state.value ?? false}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.checked)}
+                      className="size-4 rounded border border-input accent-primary"
+                    />
+                    <FieldLabel htmlFor={field.name} className="cursor-pointer">
+                      Online
+                    </FieldLabel>
+                  </div>
+                </Field>
+              )}
+            />
+
             <div className="grid grid-cols-2 gap-4">
-              <addDeviceForm.Field
+              <editDeviceForm.Field
                 name="latitude"
                 children={(field) => {
                   const isInvalid =
@@ -211,11 +259,14 @@ export function AddDeviceDialog() {
                         name={field.name}
                         type="number"
                         step="any"
-                        value={field.state.value}
+                        value={field.state.value ?? ''}
                         onBlur={field.handleBlur}
-                        onChange={(e) =>
-                          field.handleChange(Number(e.target.value))
-                        }
+                        onChange={(e) => {
+                          const num = e.target.valueAsNumber;
+                          field.handleChange(
+                            Number.isNaN(num) ? undefined : num,
+                          );
+                        }}
                         aria-invalid={isInvalid}
                       />
                       {isInvalid && (
@@ -226,7 +277,7 @@ export function AddDeviceDialog() {
                 }}
               />
 
-              <addDeviceForm.Field
+              <editDeviceForm.Field
                 name="longitude"
                 children={(field) => {
                   const isInvalid =
@@ -239,11 +290,14 @@ export function AddDeviceDialog() {
                         name={field.name}
                         type="number"
                         step="any"
-                        value={field.state.value}
+                        value={field.state.value ?? ''}
                         onBlur={field.handleBlur}
-                        onChange={(e) =>
-                          field.handleChange(Number(e.target.value))
-                        }
+                        onChange={(e) => {
+                          const num = e.target.valueAsNumber;
+                          field.handleChange(
+                            Number.isNaN(num) ? undefined : num,
+                          );
+                        }}
                         aria-invalid={isInvalid}
                       />
                       {isInvalid && (
@@ -264,9 +318,9 @@ export function AddDeviceDialog() {
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={createDevice.isPending}>
-              {createDevice.isPending && <Spinner />}
-              Create
+            <Button type="submit" disabled={isUpdating}>
+              {isUpdating && <Spinner />}
+              Save changes
             </Button>
           </DialogFooter>
         </form>

@@ -7,13 +7,17 @@ import {
   Body,
   Param,
   ParseIntPipe,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { DeviceService } from './device.service';
 import { CreateDeviceDto } from './dtos/create-device.dto';
 import { UpdateDeviceDto } from './dtos/update-device.dto';
 import { DeviceResponseInterface } from '@aico-task/shared-types';
 
-@Controller()
+@ApiTags('devices')
+@Controller('devices')
 export class DeviceController {
   constructor(private readonly deviceService: DeviceService) {}
 
@@ -38,6 +42,7 @@ export class DeviceController {
   }
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   createDevice(
     @Body() createDeviceDto: CreateDeviceDto,
   ): Promise<DeviceResponseInterface> {
@@ -45,7 +50,9 @@ export class DeviceController {
   }
 
   @Delete(':id')
-  deleteDevice(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  deleteDevice(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<{ message: string }> {
     return this.deviceService.deleteDevice(id);
   }
 }

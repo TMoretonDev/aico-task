@@ -5,35 +5,25 @@ import type {
   DeviceTypeResponseInterface,
   UpdateDeviceInterface,
 } from '@aico-task/shared-types';
-import { api } from '../client';
-
-export const deviceKeys = {
-  all: ['devices'] as const,
-  lists: () => [...deviceKeys.all, 'list'] as const,
-  detail: (id: number) => [...deviceKeys.all, 'detail', id] as const,
-};
-
-export const deviceTypeKeys = {
-  all: ['device-types'] as const,
-  lists: () => [...deviceTypeKeys.all, 'list'] as const,
-};
+import type { AxiosResponse } from 'axios';
+import { api } from '@api/client';
 
 export const useGetAllDevices = () =>
   useQuery({
-    queryKey: deviceKeys.lists(),
+    queryKey: ['getAllDevicesKey'],
     queryFn: () =>
       api
         .get<DeviceResponseInterface[]>('/devices')
-        .then((res) => res.data),
+        .then((res: AxiosResponse<DeviceResponseInterface[]>) => res.data),
   });
 
 export const useGetOneDevice = (id: number) =>
   useQuery({
-    queryKey: deviceKeys.detail(id),
+    queryKey: ['getOneDeviceKey'],
     queryFn: () =>
       api
         .get<DeviceResponseInterface>(`/devices/${id}`)
-        .then((res) => res.data),
+        .then((res: AxiosResponse<DeviceResponseInterface>) => res.data),
     enabled: Number.isFinite(id),
   });
 
@@ -43,8 +33,8 @@ export const useCreateOneDevice = () => {
     mutationFn: (data: CreateDeviceInterface) =>
       api
         .post<DeviceResponseInterface>('/devices', data)
-        .then((res) => res.data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: deviceKeys.lists() }),
+        .then((res: AxiosResponse<DeviceResponseInterface>) => res.data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['getAllDevicesKey'] }),
   });
 };
 
@@ -54,10 +44,10 @@ export const useUpdateOneDevice = (id: number) => {
     mutationFn: (data: UpdateDeviceInterface) =>
       api
         .patch<DeviceResponseInterface>(`/devices/${id}`, data)
-        .then((res) => res.data),
+        .then((res: AxiosResponse<DeviceResponseInterface>) => res.data),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: deviceKeys.detail(id) });
-      qc.invalidateQueries({ queryKey: deviceKeys.lists() });
+      qc.invalidateQueries({ queryKey: ['getOneDeviceKey'] });
+      qc.invalidateQueries({ queryKey: ['getAllDevicesKey'] });
     },
   });
 };
@@ -66,16 +56,18 @@ export const useDeleteOneDevice = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) =>
-      api.delete<void>(`/devices/${id}`).then((res) => res.data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: deviceKeys.lists() }),
+      api
+        .delete<{ message: string }>(`/devices/${id}`)
+        .then((res: AxiosResponse<{ message: string }>) => res.data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['getAllDevicesKey'] }),
   });
 };
 
 export const useGetAllDeviceTypes = () =>
   useQuery({
-    queryKey: deviceTypeKeys.lists(),
+    queryKey: ['getAllDeviceTypesKey'],
     queryFn: () =>
       api
         .get<DeviceTypeResponseInterface[]>('/device-types')
-        .then((res) => res.data),
+        .then((res: AxiosResponse<DeviceTypeResponseInterface[]>) => res.data),
   });

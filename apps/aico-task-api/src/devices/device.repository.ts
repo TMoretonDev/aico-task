@@ -28,6 +28,17 @@ export class DeviceRepository {
     return row;
   }
 
+  async findOneBySerialNumber(
+    serialNumber: string,
+  ): Promise<DeviceResponseInterface | undefined> {
+    const [row] = await this.db
+      .select()
+      .from(schema.devices)
+      .where(eq(schema.devices.serialNumber, serialNumber))
+      .limit(1);
+    return row;
+  }
+
   async createOne(
     data: CreateDeviceInterface,
   ): Promise<DeviceResponseInterface> {
@@ -50,7 +61,11 @@ export class DeviceRepository {
     return updatedRow;
   }
 
-  async deleteOne(id: number): Promise<void> {
-    await this.db.delete(schema.devices).where(eq(schema.devices.id, id));
+  async deleteOne(id: number): Promise<DeviceResponseInterface | undefined> {
+    const [deletedRow] = await this.db
+      .delete(schema.devices)
+      .where(eq(schema.devices.id, id))
+      .returning();
+    return deletedRow;
   }
 }

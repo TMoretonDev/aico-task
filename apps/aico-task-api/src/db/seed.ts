@@ -1,45 +1,17 @@
-import 'dotenv/config';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { reset, seed } from 'drizzle-seed';
-import { Pool } from 'pg';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from './schema';
 
-async function main() {
-  const pool = new Pool({
-    host: process.env.DB_HOST,
-    port: Number(process.env.DB_PORT),
-    user: process.env.DB_USERNAME,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-  });
-  const db = drizzle({ client: pool, schema });
+export const deviceTypesSeedData: (typeof schema.deviceTypes.$inferInsert)[] = [
+  { name: 'Smoke Alarm', description: 'Detects smoke' },
+  { name: 'Heat Sensor', description: 'Ambient temperature' },
+  { name: 'Black Mould Sensor', description: 'Humidity / mould risk' },
+];
 
-  await reset(db, { deviceTypes: schema.deviceTypes });
-
-  await seed(db, { deviceTypes: schema.deviceTypes }).refine((f) => ({
-    deviceTypes: {
-      count: 3,
-      columns: {
-        name: f.valuesFromArray({
-          values: ['Smoke Alarm', 'Heat Sensor', 'Black Mould Sensor'],
-          isUnique: true,
-        }),
-        description: f.valuesFromArray({
-          values: [
-            'Detects smoke',
-            'Ambient temperature',
-            'Humidity / mould risk',
-          ],
-          isUnique: true,
-        }),
-      },
-    },
-  }));
-
-  await pool.end();
+export async function seedDatabase(
+  db: NodePgDatabase<typeof schema>,
+): Promise<void> {
+  await db
+    .insert(schema.deviceTypes)
+    .values(deviceTypesSeedData)
+    .onConflictDoNothing({ target: schema.deviceTypes.name });
 }
-
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});

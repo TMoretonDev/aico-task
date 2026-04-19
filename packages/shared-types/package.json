@@ -1,5 +1,17 @@
 {
   "name": "@aico-task/shared-types",
+  "main": "./dist/index.js",
+  "types": "./index.ts",
+  "exports": {
+    ".": {
+      "@aico-task/source": "./index.ts",
+      "types": "./index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc"
+  },
   "dependencies": {
     "zod": "^3.23.0"
   }

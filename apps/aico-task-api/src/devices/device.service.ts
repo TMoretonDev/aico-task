@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   CreateDeviceInterface,
   UpdateDeviceInterface,
@@ -23,7 +27,19 @@ export class DeviceService {
     return device;
   }
 
-  createDevice(data: CreateDeviceInterface): Promise<DeviceResponseInterface> {
+  async createDevice(
+    data: CreateDeviceInterface,
+  ): Promise<DeviceResponseInterface> {
+    const device = await this.deviceRepository.findOneBySerialNumber(
+      data.serialNumber,
+    );
+
+    if (device) {
+      throw new BadRequestException(
+        `Device with serial number ${data.serialNumber} already exists`,
+      );
+    }
+
     return this.deviceRepository.createOne(data);
   }
 
@@ -40,13 +56,13 @@ export class DeviceService {
     return this.deviceRepository.updateOne(deviceToUpdate.id, data);
   }
 
-  async deleteDevice(id: number): Promise<void> {
-    const deviceToDelete = await this.deviceRepository.findOneById(id);
+  async deleteDevice(id: number): Promise<{ message: string }> {
+    const deletedDevice = await this.deviceRepository.deleteOne(id);
 
-    if (!deviceToDelete) {
+    if (!deletedDevice) {
       throw new NotFoundException(`Device with id ${id} not found`);
     }
 
-    return this.deviceRepository.deleteOne(deviceToDelete.id);
+    return { message: `Device with id ${id} deleted` };
   }
 }
