@@ -9,10 +9,13 @@ import {
   DeviceResponseInterface,
 } from '@aico-task/shared-types';
 import { DeviceRepository } from './device.repository';
-
+import { DeviceTypesRepository } from '../device-types/device-types.repository';
 @Injectable()
 export class DeviceService {
-  constructor(private readonly deviceRepository: DeviceRepository) {}
+  constructor(
+    private readonly deviceRepository: DeviceRepository,
+    private readonly deviceTypesRepository: DeviceTypesRepository,
+  ) {}
 
   getAllDevices(): Promise<DeviceResponseInterface[]> {
     return this.deviceRepository.findAll();
@@ -51,6 +54,17 @@ export class DeviceService {
 
     if (!deviceToUpdate) {
       throw new NotFoundException(`Device with id ${id} not found`);
+    }
+
+    if (data.typeId) {
+      const deviceType = await this.deviceTypesRepository.findOneById(
+        data.typeId,
+      );
+      if (!deviceType) {
+        throw new BadRequestException(
+          `Device type with id ${data.typeId} not found`,
+        );
+      }
     }
 
     return this.deviceRepository.updateOne(deviceToUpdate.id, data);

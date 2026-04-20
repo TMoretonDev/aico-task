@@ -7,11 +7,14 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
+import { deviceTypes } from './device-types';
 
 export const devices = pgTable('devices', {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   name: varchar({ length: 100 }).notNull(),
-  typeId: integer('type_id').notNull(),
+  typeId: integer('type_id')
+    .notNull()
+    .references(() => deviceTypes.id, { onDelete: 'restrict' }),
   online: boolean().notNull().default(false),
   latitude: doublePrecision().notNull().default(0),
   longitude: doublePrecision().notNull().default(0),

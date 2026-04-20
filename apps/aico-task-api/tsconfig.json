@@ -7,8 +7,8 @@
     "emitDeclarationOnly": false,
     "declaration": false,
     "declarationMap": false,
-    "composite": false
+    "composite": false,
+    "types": ["node", "jest"]
   },
-  // "references": [{ "path": "../../packages/shared-types" }],
   "include": ["src/**/*"]
 }

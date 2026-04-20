@@ -60,6 +60,7 @@ export function AddDeviceDialog() {
         setOpen(false);
         addDeviceForm.reset();
       } catch (err) {
+        // TODO: Remove once standard error shape is implemented and enforced in the API
         const message = axios.isAxiosError(err)
           ? (err.response?.data?.message ?? err.message)
           : err instanceof Error

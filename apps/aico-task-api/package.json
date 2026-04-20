@@ -17,12 +17,28 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:e2e": "pnpm test:e2e:db:up && pnpm test:e2e:db:prepare && jest --config ./test/jest-e2e.json",
+    "test:e2e:db:up": "docker compose -f ../../docker-compose.test.yml up -d --wait",
+    "test:e2e:db:down": "docker compose -f ../../docker-compose.test.yml down -v",
+    "test:e2e:db:prepare": "DB_PORT=5434 DB_NAME=aico_task_db_test pnpm db:push && DB_PORT=5434 DB_NAME=aico_task_db_test pnpm db:seed",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx src/db/seed.cli.ts"
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "dependsOn": ["^build"]
+      },
+      "start:dev": {
+        "dependsOn": ["^build"]
+      },
+      "test:e2e": {
+        "dependsOn": ["^build"]
+      }
+    }
   },
   "dependencies": {
     "@aico-task/shared-types": "workspace:*",

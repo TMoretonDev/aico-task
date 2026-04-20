@@ -67,6 +67,7 @@ export function EditDeviceDialog({ device }: Props) {
         toast.success('Device updated');
         setOpen(false);
       } catch (err) {
+        // TODO: Remove once standard error shape is implemented and enforced in the API
         const message = axios.isAxiosError(err)
           ? (err.response?.data?.message ?? err.message)
           : err instanceof Error
@@ -309,7 +310,6 @@ export function EditDeviceDialog({ device }: Props) {
               />
             </div>
           </FieldGroup>
-
           <DialogFooter>
             <Button
               type="button"

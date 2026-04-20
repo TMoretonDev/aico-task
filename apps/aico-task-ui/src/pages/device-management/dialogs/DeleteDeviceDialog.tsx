@@ -30,6 +30,7 @@ export function DeleteDeviceDialog({ device }: Props) {
         setOpen(false);
       },
       onError: (err) =>
+        // TODO: Remove once standard error shape is implemented and enforced in the API
         toast.error(
           err instanceof Error ? err.message : 'Failed to delete device',
         ),
