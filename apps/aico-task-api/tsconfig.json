@@ -5,7 +5,7 @@
     "rootDir": "src",
     "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
     "emitDeclarationOnly": false,
-    "declaration": false,
+    "declaration": true,
     "declarationMap": false,
     "composite": false,
     "types": ["node", "jest"]

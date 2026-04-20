@@ -21,7 +21,7 @@ export default tseslint.config(
       sourceType: 'commonjs',
       parserOptions: {
         projectService: {
-          allowDefaultProject: ['drizzle.config.ts'],
+          allowDefaultProject: ['drizzle.config.ts', 'test/load-env.ts'],
         },
 
         tsconfigRootDir: import.meta.dirname,
