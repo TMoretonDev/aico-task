@@ -1,6 +1,6 @@
 # Sensor App
 
-An Nx monorepo containing the API, UI and shared-types package for the AICO take home task. The project is a simple CRUD API with a table component in the frontend to visualise the data. The UI also allows adding, updating and deleting of devices.
+An Nx monorepo containing the API, UI and shared-types package for a sensor device application. The project is a simple CRUD API with a table component in the frontend to visualise the data. The UI also allows adding, updating and deleting of devices.
 
 ## Assumptions
 
