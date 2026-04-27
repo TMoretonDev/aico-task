@@ -1,4 +1,4 @@
-# AICO Task
+# Sensor App
 
 An Nx monorepo containing the API, UI and shared-types package for the AICO take home task. The project is a simple CRUD API with a table component in the frontend to visualise the data. The UI also allows adding, updating and deleting of devices.
 
@@ -20,8 +20,6 @@ My initial plan had the API using `class-validator` decorators on DTOs and the U
 My first pass had separate tables per device type: a 'Smoke alarm' table, 'Black mould' table, and 'Heat Sensor' table, each with its own copy of the common fields (serial number, manufacturer, location). That gave me three sources of truth for what a 'Serial Number' looks like, and any change to common metadata meant updating three places.
 
 I reshaped this into a single `devices` table holding the shared metadata (name, type, manufacturer, serial, location, online status) with 1:1 subtype tables for type-specific config and readings. This keeps the common fields as the single source of truth for types etc. while letting each device type carry its own structured data. The sensor-specific tables are written out in the Drizzle schema but their CRUD routes aren't yet wired up.
-
-I remember during the initial interview we discussed how Aico Homelink deals with varying data shapes for different devices, to which it was stated that all devices were made in-house and there is very limited ambiguity on what data shapes look like. I factored this into my decision-making here, opting for separate sub-type tables over an ambiguous 'device_data' jsonb object which would lead to various issues down the line.
 
 ### Integrating Drizzle ORM into Nest.js
 
